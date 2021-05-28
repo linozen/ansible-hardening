@@ -124,6 +124,7 @@
 
 - name: lock root account
   include: lockroot.yml
+  when: enable_lockroot
 
 - name: configure postfix
   include: postfix.yml
