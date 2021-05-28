@@ -4,7 +4,6 @@ Include /etc/ssh/sshd_config.d/*.conf
 {% endif %}
 
 AcceptEnv {{ sshd_accept_env }}
-AllowGroups {{ sshd_allow_groups }}
 AllowAgentForwarding {{ sshd_allow_agent_forwarding }}
 AllowTcpForwarding {{ sshd_allow_tcp_forwarding }}
 AuthenticationMethods {{ sshd_authentication_methods }}
