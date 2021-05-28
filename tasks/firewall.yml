@@ -157,7 +157,9 @@
     comment: ansible managed
   with_items:
     - "{{ sshd_admin_net }}"
-  when: ansible_os_family == "Debian"
+  when:
+    - ansible_os_family == "Debian"
+    - sshd_admin_net is defined
   tags:
     - ufw
     - ssh
