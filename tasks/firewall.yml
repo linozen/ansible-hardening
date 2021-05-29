@@ -165,7 +165,21 @@
     - ssh
     - M1037
 
-- name: allow incoming specified ufw ports
+- name: allow incoming ssh via ufw if sshd_admin_net is undefined
+  become: 'yes'
+  ufw:
+    rule: allow
+    port: '{{ sshd_port }}'
+    direction: in
+    comment: ansible managed
+  when:
+    - ansible_os_family == "Debian"
+    - sshd_admin_net is not defined
+  tags:
+    - ufw
+    - ssh
+
+- name: allow incoming specified ufw ports if sshd_admin_net is undefined
   become: 'yes'
   ufw:
     rule: allow
@@ -179,7 +193,6 @@
     - sshd_admin_net is not defined
   tags:
     - ufw
-    - ssh
 
 - name: allow outgoing specified ufw ports
   become: 'yes'
