@@ -165,6 +165,22 @@
     - ssh
     - M1037
 
+- name: allow incoming specified ufw ports
+  become: 'yes'
+  ufw:
+    rule: allow
+    port: '{{ item|int }}'
+    direction: in
+    comment: ansible managed
+  with_items:
+    - "{{ ufw_incoming_traffic }}"
+  when:
+    - ansible_os_family == "Debian"
+    - sshd_admin_net is not defined
+  tags:
+    - ufw
+    - ssh
+
 - name: allow outgoing specified ufw ports
   become: 'yes'
   ufw:

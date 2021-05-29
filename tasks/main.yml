@@ -6,7 +6,6 @@
   environment:
     PATH: /usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/bin
   include: firewall.yml
-  when: enable_firewall
 
 - name: configure sysctl
   include: sysctl.yml
