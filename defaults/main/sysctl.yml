@@ -58,6 +58,6 @@ sysctl_settings:
   net.ipv6.conf.default.max_addresses: 1
   net.ipv6.conf.default.router_solicitations: 0
   net.ipv6.conf.default.use_tempaddr: 2
-  # net.netfilter.nf_conntrack_max: 2000000
-  # net.netfilter.nf_conntrack_tcp_loose: 0
+  net.netfilter.nf_conntrack_max: 2000000
+  net.netfilter.nf_conntrack_tcp_loose: 0
 ...
