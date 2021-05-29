@@ -1,7 +1,6 @@
 ---
 sshd_accept_env: LANG LC_*
 sshd_allow_agent_forwarding: 'no'
-sshd_allow_groups: sudo
 sshd_allow_tcp_forwarding: 'no'
 sshd_authentication_methods: any
 sshd_banner: /etc/issue.net
