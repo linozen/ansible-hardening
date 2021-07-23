@@ -265,11 +265,20 @@
       changed_when: crypto_policy_set.rc != 0
 
     - name: verify noexec /dev/shm
-      become: 'yes'
       shell: grep '^tmpfs\s/dev/shm.*noexec' /proc/mounts
       register: dev_shm_noexec
       failed_when: dev_shm_noexec.rc != 0
       changed_when: dev_shm_noexec.rc != 0
+
+    - name: verify /proc
+      shell: |
+        set -o pipefail
+        grep -E '^proc\s/proc proc rw,nosuid,nodev,noexec,relatime.*hidepid=({{ hide_pid }}|invisible)' /proc/mounts
+      args:
+        executable: /bin/bash
+      register: proc_opts
+      failed_when: proc_opts.rc != 0
+      changed_when: proc_opts.rc != 0
 
     - name: verify tmp.mount
       become: 'yes'
@@ -385,6 +394,19 @@
       changed_when: efi_fat.rc != 0
       when: not booted_with_efi
 
+    - name: verify cracklib password list
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      shell: |
+        set -o pipefail
+        grep '/usr/share/dict/passwords' /var/cache/cracklib/src-dicts
+      args:
+        executable: /bin/bash
+      register: cracklib_passwords
+      failed_when: cracklib_passwords.rc != 0
+      changed_when: cracklib_passwords.rc != 0
+      when: ansible_os_family == "Debian"
+
     - name: index blacklisted kernel modules
       environment:
         PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -440,12 +462,25 @@
         shell: /bin/bash
       no_log: true
 
+    - name: create test user salt
+      set_fact:
+        test_user_salt: "{{ lookup('password', '/dev/null chars=ascii_lowercase,ascii_uppercase,digits length=16') }}"
+
     - name: change test user password
       become: 'yes'
       user:
         name: roletestuser
-        password: "{{ 'Change Ansible Role User Password' | password_hash('sha512') }}"
+        password: "{{ 'Change Ansible Role User Password' | password_hash('sha512', test_user_salt, rounds=656000) }}"
+      register: test_user_pass
       no_log: true
+
+    - name: debug test user salt
+      debug:
+        msg: "{{ test_user_salt }}"
+
+    - name: debug test user password
+      debug:
+        msg: "{{ test_user_pass }}"
 
     - name: remove test user
       become: 'yes'

@@ -3,10 +3,10 @@
   meta: flush_handlers
 
 - name: register RedHat grub audit settings
-  become: 'yes'
+  become: "yes"
   shell: |
     set -o pipefail
-    grep CMDLINE /etc/default/grub | grep "{{ grub_audit_backlog_cmdline }}" | grep "{{ grub_audit_cmdline }}"
+    grep "CMDLINE_LINUX=.*{{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}" /etc/default/grub
   changed_when: false
   failed_when: false
   args:
@@ -17,14 +17,14 @@
     - grub
 
 - name: update grub2 if missing grub settings
-  become: 'yes'
+  become: "yes"
   command: grub2-mkconfig
   when: ansible_os_family == "RedHat" and audit_grubenv.rc != 0
   tags:
     - grub
 
 - name: register Debian audit grub settings
-  become: 'yes'
+  become: "yes"
   shell: grep "linux.*{{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}" /boot/grub/grub.cfg
   changed_when: false
   failed_when: false
@@ -34,30 +34,30 @@
     - grub
 
 - name: update grub if missing grub settings
-  become: 'yes'
+  become: "yes"
   command: update-grub
   when: ansible_os_family == "Debian" and audit_grub_cfg.rc != 0
   tags:
     - grub
 
 - name: find grub config files
-  become: 'yes'
+  become: "yes"
   find:
     paths: /boot
     patterns: "*.cfg,grubenv"
-    recurse: 'yes'
+    recurse: "yes"
   register: grub_cfg
   tags:
     - grub
     - CIS-UBUNTU2004-1.4.3
 
 - name: set grub config permissions
-  become: 'yes'
+  become: "yes"
   file:
     path: "{{ item.path }}"
     mode: 0400
-  when: item.mode|int != '0400'
-  changed_when: item.mode|int != '0400'
+  when: item.mode|int > 400
+  changed_when: item.mode|int > 400
   with_items:
     - "{{ grub_cfg.files | reject('search','/boot/efi/EFI/ubuntu/grub.cfg') | list }}"
   loop_control:
@@ -65,4 +65,3 @@
   tags:
     - grub
     - CIS-UBUNTU2004-1.4.3
-...
